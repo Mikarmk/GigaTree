@@ -1,5 +1,6 @@
 import streamlit as st
 from gigachat import GigaChat
+# from gigachat.credentials import Credentials
 
 # Настройка стилей
 st.markdown(
@@ -27,8 +28,8 @@ st.markdown(
 st.title("GigaLabTree")
 st.write("Welcome to GigaLabTree chat interface!")
 
-gigachat_creds = Credentials(token=st.secrets["GIGACHAT_API_KEY"])
-chat_client = GigaChat(credentials=gigachat_creds)
+#gigachat_creds = Credentials(token=st.secrets["GIGACHAT_API_KEY"])
+#chat_client = GigaChat(credentials=gigachat_creds)
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
