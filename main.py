@@ -7,8 +7,9 @@ st.title("GigaLabTree")
 gigachat_creds = gigachat.Credentials(token=st.secrets["GIGACHAT_API_KEY"])
 chat_client = GigaChat(credentials=gigachat_creds)
 
+
 if "gigachat_model" not in st.session_state:
-    st.session_state["gigachat_model"] = "GigaChat Lite"  
+    st.session_state["gigachat_model"] = "GigaChat"  
 
 # История сообщений 
 if "messages" not in st.session_state:
