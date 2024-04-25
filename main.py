@@ -1,14 +1,17 @@
 import streamlit as st
 
-# Функция для отображения страницы регистрации
-def registration_page():
-    st.title("Registration")
+# Функция для отображения страницы входа
+def login_page():
+    st.title("Login")
     username = st.text_input("Enter your username")
     password = st.text_input("Enter your password", type="password")
-    if st.button("Register"):
-        st.session_state.username = username
-        st.session_state.logged_in = True
-        st.success("Registration successful! You can now use the chat bot.")
+    if st.button("Log in"):
+        if username == st.secrets["username"] and password == st.secrets["password"]:
+            st.session_state.username = username
+            st.session_state.logged_in = True
+            st.success("Login successful! You can now use the chat bot.")
+        else:
+            st.error("Invalid username or password. Please try again.")
 
 # Функция для отображения страницы чата
 def chat_page():
@@ -38,8 +41,10 @@ def chat_page():
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-# Проверка, авторизован ли пользователь
+# Проверка, зарегистрирован ли или авторизован пользователь
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
-    registration_page()
+    login_page()
+    if "logged_in" not in st.session_state or not st.session_state.logged_in:
+        registration_page()
 else:
     chat_page()
