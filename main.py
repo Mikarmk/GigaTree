@@ -1,6 +1,5 @@
 import streamlit as st
 from gigachat import GigaChat
-from gigachat.credentials import Credentials
 
 # Настройка стилей
 st.markdown(
