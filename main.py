@@ -1,53 +1,64 @@
 import streamlit as st
+import sqlite3
 
-# Функция для отображения страницы входа
-def login_page(username_secret, password_secret):
-    st.title("Login")
-    username_input = st.text_input("Enter your username")
-    password_input = st.text_input("Enter your password", type="password")
-    if st.button("Log in"):
-        if username_input == username_secret and password_input == password_secret:
-            st.session_state.username = username_input
-            st.session_state.logged_in = True
-            st.success("Login successful! You can now use the chat bot.")
+# Подключение к базе данных SQLite
+conn = sqlite3.connect('users.db')
+c = conn.cursor()
+
+# Создание таблицы пользователей, если она не существует
+c.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        username TEXT PRIMARY KEY,
+        password TEXT
+    )
+''')
+conn.commit()
+
+# Функция для регистрации пользователя
+def register_user(username, password):
+    c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+    conn.commit()
+
+# Функция для проверки существования пользователя в базе данных
+def authenticate_user(username, password):
+    c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
+    if c.fetchone():
+        return True
+    return False
+
+# Главная страница приложения
+def main():
+    st.title("Chat Bot App")
+
+    # Проверка, авторизован ли пользователь
+    if "logged_in" not in st.session_state or not st.session_state.logged_in:
+        register = st.sidebar.checkbox("Register")
+        if register:
+            username = st.text_input("Enter username")
+            password = st.text_input("Enter password", type="password")
+            if st.button("Register"):
+                register_user(username, password)
+                st.success("Registration successful! Please log in.")
         else:
-            st.error("Invalid username or password. Please try again.")
+            username = st.text_input("Enter username")
+            password = st.text_input("Enter password", type="password")
+            if st.button("Log in"):
+                if authenticate_user(username, password):
+                    st.session_state.username = username
+                    st.session_state.logged_in = True
+                    st.success("Login successful! You can now use the chat bot.")
+                else:
+                    st.error("Invalid username or password. Please try again.")
 
-# Функция для отображения страницы чата
-def chat_page():
-    st.title("LabTree Chat")
-    st.write("Welcome, " + st.session_state.username)
+    # Отображение чат-бота
+    if st.session_state.logged_in:
+        st.write("Welcome, " + st.session_state.username)
+        message = st.text_input("What is up?")
+        st.write("Echo: " + message)
 
-    # Initialize chat history
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+# Запускаем главную страницу
+if __name__ == "__main__":
+    main()
 
-    # Display chat messages from history on app rerun
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-
-    # React to user input
-    if prompt := st.chat_input("What is up?"):
-        # Display user message in chat message container
-        st.chat_message("user").markdown(prompt)
-        # Add user message to chat history
-        st.session_state.messages.append({"role": "user", "content": prompt})
-
-        response = f"Echo: {prompt}"
-        # Display assistant response in chat message container
-        with st.chat_message("assistant"):
-            st.markdown(response)
-        # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": response})
-
-# Загрузка секретов из Streamlit Secrets
-secrets = st.secrets["secrets"]
-username = secrets["username"]
-password = secrets["password"]
-
-# Проверка, зарегистрирован ли или авторизован пользователь
-if "logged_in" not in st.session_state or not st.session_state.logged_in:
-    login_page(username, password)
-else:
-    chat_page()
+# Закрытие подключения к базе данных
+conn.close()
