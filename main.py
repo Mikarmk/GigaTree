@@ -45,7 +45,7 @@ if user_input:
     gigachat_response = chat_client.get_response(st.session_state.messages)
     st.session_state.messages.append({"role": "assistant", "content": gigachat_response})
 
-    st.write("Assistant: " + gigachat_response)
+    st.write("Assistant: " + f"Ответ нейронки: {gigachat_response} - Ваш запрос: {user_input}")
 
 # Футер
 st.markdown("<hr>", unsafe_allow_html=True)
